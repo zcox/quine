@@ -245,6 +245,7 @@ lazy val `quine`: Project = project
       // All akka-http module version numbers need to match exactly, or else it
       // throws at startup: "java.lang.IllegalStateException: Detected possible incompatible versions on the classpath."
       "com.typesafe.akka" %% "akka-http-xml" % akkaHttpV,
+      "io.confluent" % "kafka-avro-serializer" % confluentV,
       "org.scalatest" %% "scalatest" % scalaTestV % Test,
       "org.scalatestplus" %% "scalacheck-1-15" % scalaTestScalaCheckV % Test,
       "org.endpoints4s" %% "algebra-json-schema" % endpoints4sDefaultV,
