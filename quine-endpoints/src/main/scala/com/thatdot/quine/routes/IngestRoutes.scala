@@ -456,6 +456,19 @@ object StreamedRecordFormat {
     ) typeName: String
   ) extends StreamedRecordFormat
 
+  @title("Avro via Cypher")
+  @unnamed
+  @docs(
+    "Records are... TODO. " +
+    "For every record received, the given Cypher query will be re-executed with the parameter " +
+    "in the query set equal to the new (deserialized) Protobuf message."
+  )
+  final case class CypherAvro(
+    @docs("Cypher query to execute on each record") query: String,
+    @docs("name of the Cypher parameter to populate with the Protobuf message") parameter: String = "that",
+    @docs("URL of the Confluent Schema Registry") schemaRegistryUrl: String,
+  ) extends StreamedRecordFormat
+
   @title("Drop")
   @unnamed
   @docs("Ignore the data without further processing.")

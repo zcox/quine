@@ -166,6 +166,8 @@ object IngestSrcDef extends LazyLogging {
         new CypherJsonInputFormat(query, parameter)
       case StreamedRecordFormat.CypherProtobuf(query, parameter, schemaUrl, typeName) =>
         new ProtobufInputFormat(query, parameter, filenameOrUrl(schemaUrl), typeName)
+      case StreamedRecordFormat.CypherAvro(query, parameter, schemaRegistryUrl) =>
+        new AvroInputFormat(query, parameter, new java.net.URL(schemaRegistryUrl))
       case StreamedRecordFormat.CypherRaw(query, parameter) =>
         new CypherRawInputFormat(query, parameter)
       case StreamedRecordFormat.Drop => new TestOnlyDrop()
