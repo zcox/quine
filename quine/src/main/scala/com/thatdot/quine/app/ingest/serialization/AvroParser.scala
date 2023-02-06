@@ -1,29 +1,31 @@
 package com.thatdot.quine.app.ingest.serialization
 
-import com.thatdot.quine.graph.cypher
+import java.io.ByteArrayOutputStream
+import java.net.URL
+
+import scala.jdk.CollectionConverters._
+import scala.language.higherKinds
+import scala.util.Try
 
 import cats._
 import cats.syntax.all._
+import io.circe.parser._
 import io.confluent.kafka.serializers._
 import org.apache.avro.generic._
 import org.apache.avro.io.EncoderFactory
-import scala.language.higherKinds
-import scala.util.Try
-import io.circe.parser._
-import java.net.URL
-import scala.jdk.CollectionConverters._
-import java.io.ByteArrayOutputStream
+
+import com.thatdot.quine.graph.cypher
 
 class AvroParser[F[_]: MonadThrow](deserializer: KafkaAvroDeserializer) {
 
-  private def wrap[A](a: => A): F[A] = 
+  private def wrap[A](a: => A): F[A] =
     MonadThrow[F].catchNonFatal(a)
 
-  private def bytesToGenericRecord(bytes: Array[Byte]): F[GenericRecord] = 
+  private def bytesToGenericRecord(bytes: Array[Byte]): F[GenericRecord] =
     //note that the topic name is unnecessary, since the avro bytes contain the ID of the writer schema in the registry
     wrap(deserializer.deserialize(null, bytes))
       .flatMap {
-        case r: GenericRecord => 
+        case r: GenericRecord =>
           println(s"***** record = $r")
           r.pure[F]
         //TODO better error
@@ -41,7 +43,7 @@ class AvroParser[F[_]: MonadThrow](deserializer: KafkaAvroDeserializer) {
     baos.toString()
   }
 
-  private def genericRecordToCypherValue(record: GenericRecord): F[cypher.Value] = 
+  private def genericRecordToCypherValue(record: GenericRecord): F[cypher.Value] =
     for {
       s <- wrap(recordToJsonString(record))
       () = println(s"***** string = $s")
@@ -51,7 +53,7 @@ class AvroParser[F[_]: MonadThrow](deserializer: KafkaAvroDeserializer) {
       () = println(s"***** cypher value = $v")
     } yield v
 
-  def parseBytes(bytes: Array[Byte]): F[cypher.Value] = 
+  def parseBytes(bytes: Array[Byte]): F[cypher.Value] =
     for {
       record <- bytesToGenericRecord(bytes)
       value <- genericRecordToCypherValue(record)
@@ -62,9 +64,12 @@ object AvroParser {
 
   def apply(schemaRegistryUrl: URL): AvroParser[Try] = {
     val d = new KafkaAvroDeserializer()
-    d.configure(Map(
-      AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG -> schemaRegistryUrl.toString(),
-    ).asJava, false)
+    d.configure(
+      Map(
+        AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG -> schemaRegistryUrl.toString()
+      ).asJava,
+      false
+    )
     new AvroParser[Try](d)
   }
 }

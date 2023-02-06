@@ -466,7 +466,7 @@ object StreamedRecordFormat {
   final case class CypherAvro(
     @docs("Cypher query to execute on each record") query: String,
     @docs("name of the Cypher parameter to populate with the Protobuf message") parameter: String = "that",
-    @docs("URL of the Confluent Schema Registry") schemaRegistryUrl: String,
+    @docs("URL of the Confluent Schema Registry") schemaRegistryUrl: String
   ) extends StreamedRecordFormat
 
   @title("Drop")

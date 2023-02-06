@@ -134,10 +134,10 @@ class ProtobufInputFormat(query: String, parameter: String, schemaUrl: URL, type
   override protected def importBytes(data: Array[Byte]): Try[cypher.Value] = Try(parser.parseBytes(data))
 }
 
-class AvroInputFormat(query: String, parameter: String, schemaRegistryUrl: URL) 
+class AvroInputFormat(query: String, parameter: String, schemaRegistryUrl: URL)
     extends CypherImportFormat(query, parameter) {
   private val parser = AvroParser(schemaRegistryUrl)
 
-  override protected def importBytes(data: Array[Byte]): Try[cypher.Value] = 
+  override protected def importBytes(data: Array[Byte]): Try[cypher.Value] =
     parser.parseBytes(data)
 }
